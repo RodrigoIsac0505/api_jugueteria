@@ -1,5 +1,15 @@
 const clienteService = require("../services/clienteService");
 
+const getAllJuguetes = (req, res) => {
+  try {
+    clienteService.getAllJuguetes()
+      .then((juguetes) =>
+        res.send({ status: "OK", data: juguetes }));
+  } catch (error) {
+    console.log("Ha ocurrido un error: " + error);
+  }
+};
+
 const getMiDeuda = (req, res) => {
   try {
     const { params: { clienteId }, } = req;
@@ -7,8 +17,8 @@ const getMiDeuda = (req, res) => {
       return;
     }
     clienteService.getMiDeuda(clienteId)
-      .then((cliente) =>
-        res.send({ status: "OK", data: cliente }));
+      .then((deuda) =>
+        res.send({ status: "OK", data: deuda }));
   } catch (error) {
     console.log("Ha ocurrido un error: " + error);
   }
@@ -21,8 +31,8 @@ const getMisPagos = (req, res) => {
       return;
     }
     clienteService.getMisPagos(clienteId)
-      .then((cliente) =>
-        res.send({ status: "OK", data: cliente }));
+      .then((misPagos) =>
+        res.send({ status: "OK", data: misPagos }));
   } catch (error) {
     console.log("Ha ocurrido un error: " + error);
   }
@@ -35,8 +45,8 @@ const getMisJuguetesSeparados = (req, res) => {
       return;
     }
     clienteService.getMisJuguetesSeparados(clienteId)
-      .then((cliente) =>
-        res.send({ status: "OK", data: cliente }));
+      .then((juguetesSeparados) =>
+        res.send({ status: "OK", data: juguetesSeparados }));
   } catch (error) {
     console.log("Ha ocurrido un error: " + error);
   }
@@ -50,6 +60,7 @@ const insertarCliente = (req, res) => {
       !body.nombre ||
       !body.apellido
     ) {
+      res.status(201).send({ status: "OK", data: "Hacen falta datos, reviselos y realize la cosulta nuevamente" });
       return;
     }
     const datosCliente = {
@@ -57,10 +68,9 @@ const insertarCliente = (req, res) => {
       nombre: body.nombre,
       apellido: body.apellido
     };
-    console.log(datosCliente);
     clienteService.insertarCliente(datosCliente)
-      .then((datos) =>
-        res.status(201).send({ status: "OK", data: datos }));
+      .then((datosC) =>
+        res.status(201).send({ status: "OK", data: datosC }));
   } catch (error) {
     console.log("Ha ocurrido un error: " + error);
   }
@@ -75,6 +85,7 @@ const insertarJuguete = (req, res) => {
       !body.cantidad ||
       !body.precio
     ) {
+      res.status(201).send({ status: "OK", data: "Hacen falta datos, reviselos y realize la cosulta nuevamente" });
       return;
     }
     const datosJuguete = {
@@ -84,8 +95,8 @@ const insertarJuguete = (req, res) => {
       precio: body.precio
     };
     clienteService.insertarJuguete(datosJuguete)
-      .then((datos) =>
-        res.status(201).send({ status: "OK", data: datos }));
+      .then((datosJ) =>
+        res.status(201).send({ status: "OK", data: datosJ }));
   } catch (error) {
     console.log("Ha ocurrido un error: " + error);
   }
@@ -99,6 +110,7 @@ const separarJuguetes = (req, res) => {
       !body.id_cliente ||
       !body.cantidad
     ) {
+      res.status(201).send({ status: "OK", data: "Hacen falta datos, reviselos y realize la cosulta nuevamente" });
       return;
     }
     const datosJuguete = {
@@ -107,8 +119,8 @@ const separarJuguetes = (req, res) => {
       cantidad: body.cantidad
     };
     clienteService.separarJuguetes(datosJuguete)
-      .then((datos) =>
-        res.status(201).send({ status: "OK", data: datos }));
+      .then((datosJ) =>
+        res.status(201).send({ status: "OK", data: datosJ }));
   } catch (error) {
     console.log("Ha ocurrido un error: " + error);
   }
@@ -121,6 +133,7 @@ const pagoDeuda = (req, res) => {
       !body.id_cliente ||
       !body.pago
     ) {
+      res.status(201).send({ status: "OK", data: "Hacen falta datos, reviselos y realize la cosulta nuevamente" });
       return;
     }
     const datosPago = {
@@ -128,48 +141,64 @@ const pagoDeuda = (req, res) => {
       pago: body.pago
     };
     clienteService.pagoDeuda(datosPago)
-      .then((datos) =>
-        res.status(201).send({ status: "OK", data: datos }));
+      .then((datosP) =>
+        res.status(201).send({ status: "OK", data: datosP }));
   } catch (error) {
     console.log("Ha ocurrido un error: " + error);
   }
 };
 
-const getOneWorkout = (req, res) => {
-  const { params: { workoutId }, } = req;
-  if (!workoutId) {
-    return;
+const updatedJuguetes = (req, res) => {
+  try {
+    if (
+      !body.nombre_juguete ||
+      !body.cantidad_juguete ||
+      !body.precio ||
+      !body.codigo 
+    ) {
+      res.status(201).send({ status: "OK", data: "Hacen falta datos, reviselos y realize la cosulta nuevamente" });
+      return;
+    }
+  clienteService.updatedJuguetes( body)
+    .then((updatedJuguete) =>
+      res.send({ status: "OK", data: updatedJuguete }));
+  } catch (error) {
+    console.log("Ha ocurrido un error: " + error);
   }
-  clienteService.getOneWorkout(workoutId)
-    .then((workout) =>
-      res.send({ status: "OK", data: workout }));
+  const { body } = req;
+    
 };
 
-const updateOneWorkout = (req, res) => {
-  const {
-    body,
-    params: { workoutId },
-  } = req;
-  if (!workoutId) {
+const deleteJuguetes = (req, res) => {
+  try {
+    const { params: { jugueteId }, } = req;
+  if (!jugueteId) {
+    res.status(204).send({ status: "OK", data: "Hacen falta datos, reviselos y realize la cosulta nuevamente" });
     return;
   }
-  clienteService.updateOneWorkout(workoutId, body)
-    .then((updatedWorkout) =>
-      res.send({ status: "OK", data: updatedWorkout }));
-};
-
-const deleteOneWorkout = (req, res) => {
-  const {
-    params: { workoutId },
-  } = req;
-  if (!workoutId) {
-    return;
-  }
-  clienteService.deleteOneWorkout(workoutId);
+  clienteService.deleteJuguetes(jugueteId);
   res.status(204).send({ status: "OK" });
+  } catch (error) {
+    console.log("Ha ocurrido un error: " + error);
+  }
+};
+
+const deleteCliente = (req, res) => {
+  try {
+    const { params: { clienteId }, } = req;
+  if (!clienteId) {
+    res.status(204).send({ status: "OK", data: "Hacen falta datos, reviselos y realize la cosulta nuevamente" });
+    return;
+  }
+  clienteService.deleteCliente(clienteId);
+  res.status(204).send({ status: "OK" });
+  } catch (error) {
+    console.log("Ha ocurrido un error: " + error);
+  }
 };
 
 module.exports = {
+  getAllJuguetes,
   getMiDeuda,
   getMisPagos,
   getMisJuguetesSeparados,
@@ -177,7 +206,7 @@ module.exports = {
   insertarJuguete,
   separarJuguetes,
   pagoDeuda,
-  getOneWorkout,
-  updateOneWorkout,
-  deleteOneWorkout
+  updatedJuguetes,
+  deleteJuguetes,
+  deleteCliente
 };

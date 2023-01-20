@@ -1,17 +1,42 @@
 const pool = require('./connection');
 
+const getAllJuguetes = () => {
+  try {
+    return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      $query = "CALL `all_juguetes`"
+      pool.query($query, function (e, rows) {
+        if (e) {
+          resolve("Error ocurred in executing the query.")
+          return
+        }
+        for (let index = 0; index < rows.length; index++) {
+          const juguetes = rows[index];
+          resolve(juguetes);  
+        }
+      })
+    }, 1500)
+  })
+  } catch (error) {
+    console.log("Ha ocurrido un error: "+error);
+  }
+};
+
+
 const getMiDeuda = (clienteId) => {
   try {
     return new Promise((resolve, reject) => {
     setTimeout(() => {
       $query = "CALL `mi_deuda`(?)"
-      //$query = "select * from cliente where cedula=";
       pool.query($query,clienteId, function (e, rows) {
         if (e) {
           resolve("Error ocurred in executing the query.")
           return
         }
-        resolve(rows)
+        for (let index = 0; index < rows.length; index++) {
+          const deuda = rows[index];
+          resolve(deuda);  
+        }
       })
     }, 1500)
   })
@@ -25,13 +50,15 @@ const getMisPagos = (clienteId) => {
     return new Promise((resolve, reject) => {
     setTimeout(() => {
       $query = "CALL `mis_pagos`(?)"
-      //$query = "select * from cliente where cedula=";
       pool.query($query,clienteId, function (e, rows) {
         if (e) {
           resolve("Error ocurred in executing the query.")
           return
         }
-        resolve(rows)
+        for (let index = 0; index < rows.length; index++) {
+          const misPagos = rows[index];
+          resolve(misPagos);  
+        }
       })
     }, 1500)
   })
@@ -51,7 +78,10 @@ const getMisJuguetesSeparados = (clienteId) => {
           resolve("Error ocurred in executing the query.")
           return
         }
-        resolve(rows)
+        for (let index = 0; index < rows.length; index++) {
+          const juguetesSeparados = rows[index];
+          resolve(juguetesSeparados);  
+        }
       })
     }, 1500)
   })
@@ -60,28 +90,27 @@ const getMisJuguetesSeparados = (clienteId) => {
   }
 };
 
-const insertarCliente = (newDatos) => {
+const insertarCliente = (datosCliente) => {
   try {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        // agregar multiples filas se deja el signo de interrogacion sin parentesis
-        //$query = "INSERT INTO usuario (id, email, password, name, last_name,createdAt,updatedAt) VALUES ?"
-        // agregar una sola fila
         $query = "call insertar_cliente (?);";
-        let datos = [
-          newDatos.id,
-          newDatos.cedula,
-          newDatos.nombre,
-          newDatos.apellido
+        let datosInsertar = [
+          datosCliente.id,
+          datosCliente.cedula,
+          datosCliente.nombre,
+          datosCliente.apellido
         ];
-        console.log(datos);
-        pool.query($query, [datos]
+        pool.query($query, [datosInsertar]
           , function (e, result, fields) {
             if (e) {
-              resolve("Error ocurred in executing the query.")
+              if (e == "Error: ER_DUP_ENTRY: Duplicate entry '0005' for key 'PRIMARY'") {
+              resolve("La cedula cliente ya esta en uso")
+              return
+              }
+              resolve("Ha ocurrido un error" + e)
               return
             }
-            console.log("se agrego");
             resolve("Filas afectadas: " + result.affectedRows);
           })
       }, 1500)
@@ -91,28 +120,27 @@ const insertarCliente = (newDatos) => {
   }
 };
 
-const insertarJuguete = (newJuguetes) => {
+const insertarJuguete = (datosJuguete) => {
   try {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        // agregar multiples filas se deja el signo de interrogacion sin parentesis
-        //$query = "INSERT INTO usuario (id, email, password, name, last_name,createdAt,updatedAt) VALUES ?"
-        // agregar una sola fila
         $query = "call insertar_juguetes (?);";
-        let datos = [
-          newJuguetes.codigo,
-          newJuguetes.nombre,
-          newJuguetes.cantidad,
-          newJuguetes.precio
+        let datosInsertar = [
+          datosJuguete.codigo,
+          datosJuguete.nombre,
+          datosJuguete.cantidad,
+          datosJuguete.precio
         ];
-        console.log(datos);
-        pool.query($query, [datos]
+        pool.query($query, [datosInsertar]
            ,function (e, result, fields) {
             if (e) {
-              resolve("Error ocurred in executing the query.")
+              if (e == "Error: ER_DUP_ENTRY: Duplicate entry '0005' for key 'PRIMARY'") {
+              resolve("El codigo de juguete ya esta en uso")
+              return
+              }
+              resolve("Ha ocurrido un error" + e)
               return
             }
-            console.log("se agrego");
             resolve("Filas afectadas: " + result.affectedRows);
           })
       }, 1500)
@@ -126,25 +154,19 @@ const separarJuguetes = (datosJuguetes) => {
   try {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        // agregar multiples filas se deja el signo de interrogacion sin parentesis
-        //$query = "INSERT INTO usuario (id, email, password, name, last_name,createdAt,updatedAt) VALUES ?"
-        // agregar una sola fila
         $query = "call separar_juguete (?);";
-        let datos = [
+        let datosInsertar = [
           datosJuguetes.id_cliente,
           datosJuguetes.id_juguete,
           datosJuguetes.cantidad
         ];
-        console.log(datos);
-        pool.query($query, [datos]
+        pool.query($query, [datosInsertar]
            ,function (e, result, fields) {
             if (e) {
               resolve("Error ocurred in executing the query.")
               return
             }
-            console.log("se agrego");
-            console.log(result);
-            resolve("Filas afectadas: " + result.Saldo);
+            resolve("Se separaron los juguetes");
           })
       }, 1500)
     })
@@ -157,24 +179,18 @@ const pagoDeuda = (datosPago) => {
   try {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        // agregar multiples filas se deja el signo de interrogacion sin parentesis
-        //$query = "INSERT INTO usuario (id, email, password, name, last_name,createdAt,updatedAt) VALUES ?"
-        // agregar una sola fila
         $query = "call pago_deuda (?);";
-        let datos = [
+        let datosInsertar = [
           datosPago.id_cliente,
           datosPago.pago
         ];
-        console.log(datos);
-        pool.query($query, [datos]
+        pool.query($query, [datosInsertar]
            ,function (e, result, fields) {
             if (e) {
               resolve("Error ocurred in executing the query.")
               return
             }
-            console.log("se agrego pago");
-            console.log(result);
-            resolve("Filas afectadas: " + result.affectedRows);
+              resolve("Se realizo el pago satisfactoriamente");  
           })
       }, 1500)
     })
@@ -183,51 +199,38 @@ const pagoDeuda = (datosPago) => {
   }
 };
 
-const getOneWorkout = (workoutId) => {
-  return new Promise((resolve, reject) => {
+const updatedJuguetes = ( changes) => {
+  try {
+     return new Promise((resolve, reject) => {
     setTimeout(() => {
-      $query = "SELECT * from usuario where id = ?"
-
-      pool.query($query, workoutId, function (e, rows) {
-        if (e) {
-          resolve("Error ocurred in executing the query.")
-          return
-        }
-        resolve(rows)
-      })
-    }, 1500)
-  })
-};
-
-
-const updateOneWorkout = (workoutId, changes) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      let datos = [
-        changes.email,
-        changes.password,
-        changes.name,
-        changes.last_name,
-        changes.updatedAt
+      let datosActualizar = [
+        changes.nombre_juguete,
+        changes.cantidad_juguete,
+        changes.precio,
+        changes.codigo
       ];
-      $query = " UPDATE usuario SET email='"+datos[0]+"',password='"+datos[1]+"' , name='"+datos[2]+"',last_name= '"+datos[3]+"', updatedAt='"+datos[4]+"' WHERE id=?"
-      pool.query($query, workoutId
+      $query = "call actualizar_juguete (?);";
+      pool.query($query,[datosActualizar]
         , function (e, result, fields) {
           if (e) {
-            resolve("Error ocurred in executing the query.")
+            resolve("Error ocurred in executing the query."+ e)
             return
           }
           resolve("Filas afectadas: " + result.affectedRows);
         })
     }, 1500)
   })
+  } catch (error) {
+    console.log("Ha ocurrido un error: " + error);
+  }
 };
 
-const deleteOneWorkout = (workoutId) => {
-  setTimeout(() => {
-  $query = "Delete from usuario where id=?";
-  console.log("comienzo de workouts");
-  pool.query($query, workoutId
+
+const deleteJuguetes = (jugueteId) => {
+  try {
+    setTimeout(() => {
+  $query = "call eliminar_juguete(?)";
+  pool.query($query, jugueteId
     , function (e, result, fields) {
       if (e) {
         console.log("Error ocurred in executing the query.")
@@ -236,9 +239,31 @@ const deleteOneWorkout = (workoutId) => {
       console.log("se elimino");
     })
   }, 1500)
+  } catch (error) {
+    console.log("Ha ocurrido un error: " + error);
+  }  
+};
+
+const deleteCliente = (clienteId) => {
+  try {
+    setTimeout(() => {
+  $query = "call eliminar_cliente(?)";
+  pool.query($query, clienteId
+    ,function (e, result, fields) {
+      if (e) {
+        console.log("Error ocurred in executing the query.")
+        return
+      }
+      console.log("se elimino");
+    })
+  }, 1500)
+  } catch (error) {
+    console.log("Ha ocurrido un error: " + error);
+  }  
 };
 
 module.exports = {
+  getAllJuguetes,
   getMiDeuda,
   getMisPagos,
   getMisJuguetesSeparados,
@@ -246,7 +271,7 @@ module.exports = {
   insertarJuguete,
   separarJuguetes,
   pagoDeuda,
-  getOneWorkout,
-  updateOneWorkout,
-  deleteOneWorkout,
+  updatedJuguetes,
+  deleteJuguetes,
+  deleteCliente
 };

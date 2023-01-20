@@ -3,11 +3,23 @@
 const { v4: uuid } = require("uuid");
 const cliente = require("../database/cliente");
 
+const getAllJuguetes = () => {
+  try {
+    return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      cliente.getAllJuguetes().then((juguetes) => resolve(juguetes));
+    }, 1000)
+  }) 
+  } catch (error) {
+    console.log("Ha ocurrido un error: "+error);
+  }
+};
+
 const getMiDeuda = (clienteId) => {
   try {
     return new Promise((resolve, reject) => {
     setTimeout(() => {
-      cliente.getMiDeuda(clienteId).then((workout) => resolve(workout));
+      cliente.getMiDeuda(clienteId).then((deuda) => resolve(deuda));
     }, 1000)
   }) 
   } catch (error) {
@@ -19,7 +31,7 @@ const getMisPagos = (clienteId) => {
   try {
     return new Promise((resolve, reject) => {
     setTimeout(() => {
-      cliente.getMisPagos(clienteId).then((workout) => resolve(workout));
+      cliente.getMisPagos(clienteId).then((misPagos) => resolve(misPagos));
     }, 1000)
   }) 
   } catch (error) {
@@ -31,20 +43,12 @@ const getMisJuguetesSeparados = (clienteId) => {
   try {
     return new Promise((resolve, reject) => {
     setTimeout(() => {
-      cliente.getMisJuguetesSeparados(clienteId).then((workout) => resolve(workout));
+      cliente.getMisJuguetesSeparados(clienteId).then((juguetesSeparados) => resolve(juguetesSeparados));
     }, 1000)
   }) 
   } catch (error) {
     console.log("Ha ocurrido un error: "+error);
   }
-};
-
-const getOneWorkout = (workoutId) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      cliente.getOneWorkout(workoutId).then((workout) => resolve(workout));
-    }, 1000)
-  })
 };
 
 const insertarCliente = (datosCliente) => {
@@ -53,10 +57,9 @@ const insertarCliente = (datosCliente) => {
     ...datosCliente,
     id: uuid() //agregando la id aleatoria y las fechas
   };
-  console.log(datosInsertar);
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      cliente.insertarCliente(datosInsertar).then((datos) => resolve(datos));
+      cliente.insertarCliente(datosInsertar).then((datosC) => resolve(datosC));
     }, 1000)
   })
   } catch (error) {
@@ -66,10 +69,9 @@ const insertarCliente = (datosCliente) => {
 
 const insertarJuguete = (datosJuguete) => {
   try {
-  console.log(datosJuguete);
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      cliente.insertarJuguete(datosJuguete).then((datos) => resolve(datos));
+      cliente.insertarJuguete(datosJuguete).then((datosJ) => resolve(datosJ));
     }, 1000)
   })
   } catch (error) {
@@ -79,10 +81,9 @@ const insertarJuguete = (datosJuguete) => {
 
 const separarJuguetes = (datosJuguete) => {
   try {
-  console.log(datosJuguete);
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      cliente.separarJuguetes(datosJuguete).then((datos) => resolve(datos));
+      cliente.separarJuguetes(datosJuguete).then((datosJ) => resolve(datosJ));
     }, 1000)
   })
   } catch (error) {
@@ -92,7 +93,6 @@ const separarJuguetes = (datosJuguete) => {
 
 const pagoDeuda = (datosPago) => {
   try {
-  console.log(datosPago);
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       cliente.pagoDeuda(datosPago).then((datos) => resolve(datos));
@@ -103,39 +103,36 @@ const pagoDeuda = (datosPago) => {
   }
 };
 
-const createNewWorkout = (newWorkout) => {
-  //agregando la id aleatoria y las fechas
-  const workoutToInsert = {
-    ...newWorkout,
-    id: uuid(),
-    createdAt: new Date().toLocaleString("en-US", { timeZone: "UTC" }),
-    updatedAt: new Date().toLocaleString("en-US", { timeZone: "UTC" }),
-  };
-  console.log(workoutToInsert);
-  return new Promise((resolve, reject) => {
+const updatedJuguetes = (cambios) => {
+ try {
+   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      cliente.createNewWorkout(workoutToInsert).then((workout) => resolve(workout));
+      cliente.updatedJuguetes( cambios).then((updatedJuguete) => resolve(updatedJuguete));
     }, 1000)
   })
+ } catch (error) {
+  console.log("Ha ocurrido un error: " + error);
+ }
 };
 
-const updateOneWorkout = (workoutId, changes) => {
-  const workoutToUpdated = {
-    ...changes,
-    updatedAt: new Date().toLocaleString("en-US", { timeZone: "UTC" }),
-  };
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      cliente.updateOneWorkout(workoutId, workoutToUpdated).then((workout) => resolve(workout));
-    }, 1000)
-  })
+const deleteJuguetes = (jugueteId) => {
+  try {
+    cliente.deleteJuguetes(jugueteId);
+  } catch (error) {
+    console.log("Ha ocurrido un error: " + error);
+  }
 };
 
-const deleteOneWorkout = (workoutId) => {
-  cliente.deleteOneWorkout(workoutId);
+const deleteCliente = (clienteId) => {
+  try {
+    cliente.deleteCliente(clienteId);
+  } catch (error) {
+    console.log("Ha ocurrido un error: " + error);
+  }
 };
 
 module.exports = {
+  getAllJuguetes,
   getMiDeuda,
   getMisPagos,
   getMisJuguetesSeparados,
@@ -143,8 +140,7 @@ module.exports = {
   insertarJuguete,
   separarJuguetes,
   pagoDeuda,
-  getOneWorkout,
-  createNewWorkout,
-  updateOneWorkout,
-  deleteOneWorkout,
+  updatedJuguetes,
+  deleteJuguetes,
+  deleteCliente
 };
