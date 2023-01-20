@@ -1,0 +1,15 @@
+# Node
+npm-debug.log
+node_modules/
+
+# Windows
+Thumbs.db
+
+# WebStorm/PhpStorm/VSCode
+.idea/
+.vscode/
+
+
+# General
+log/
+*.log
