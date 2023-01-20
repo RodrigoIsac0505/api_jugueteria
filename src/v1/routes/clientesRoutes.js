@@ -3,14 +3,18 @@ const clienteController = require("../../controllers/clienteController");
 
 const router = express.Router();
 
-router.get("/:clienteId", clienteController.getMiDeuda);
+router.get("/misDeudas/:clienteId", clienteController.getMiDeuda);
 
-//router.get("/:clienteId", clienteController.getOneWorkout);
+router.get("/misPagos/:clienteId", clienteController.getMisPagos);
 
-router.post("/", clienteController.createNewWorkout);
+router.get("/misJuguetesSeparados/:clienteId", clienteController.getMisJuguetesSeparados);
 
-router.patch("/:clienteId", clienteController.updateOneWorkout);
+router.post("/insertarCliente", clienteController.insertarCliente);
 
-router.delete("/:clienteId", clienteController.deleteOneWorkout);
+router.post("/insertarJuguete", clienteController.insertarJuguete);
+
+router.post("/separarJuguetes", clienteController.separarJuguetes);
+
+router.post("/pagoDeuda", clienteController.pagoDeuda);
 
 module.exports = router;
